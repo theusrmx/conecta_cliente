@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
 import { RadioButton } from 'react-native-paper';
 import InputCadastro from '../../components/cadastro_cliente/InputCadastro';
+import { cadastrarCliente } from '../../bd/database'; 
 
 const CadastroClienteScreen = () => {
   const [cnpj, setCnpj] = useState('');
@@ -20,47 +21,53 @@ const CadastroClienteScreen = () => {
     }
   };
 
-  const imprimirDadosCadastrados = () => {
-    const table_cliente = {
+  const cadastrarCliente = async () => {
+    console.log(clienteDataAPI)
+
+
+    clienteDataAPI = {
+      razao_social: clienteData.razao_social,
       cnpj: clienteData.cnpj,
-      razaoSocial: clienteData.razao_social,
-      nomeFantasia: clienteData.nome_fantasia,
-      tipoEmpresa: tipoEmpresa,
-      dataFundacao: clienteData.data_inicio_atividade,
-      predioProprio: predioProprio,
-      aluguel: clienteData.aluguel
-    };
-
-    const table_contato = {
-      telefone: clienteData.ddd_telefone_1,
-      email_comercial: clienteData.email_comercial,
-      email_financeiro: clienteData.email_financeiro,
-      email_nfe: clienteData.email_nfe,
-      endereco: `${clienteData.descricao_tipo_de_logradouro} ${clienteData.logradouro}, ${clienteData.numero}, ${clienteData.bairro}, ${clienteData.municipio}, ${clienteData.uf} - CEP: ${clienteData.cep}`
-    }; 
-
-    const table_responsavel = {
+      nome_fantasia: clienteData.nome_fantasia,
+      tipo_empresa: tipoEmpresa,
+      data_fundacao: clienteData.data_inicio_atividade,
+      predio_proprio: predioProprio,
+      aluguel: clienteData.aluguel,
       nome_gerente: clienteData.nome_gerente,
       cpf_gerente: clienteData.cpf_gerente,
       nome_comprador: clienteData.nome_comprador,
       cpf_comprador: clienteData.cpf_comprador,
+      telefone: clienteData.ddd_telefone_1,
+      email_comercial: clienteData.email_comercial,
+      email_financeiro: clienteData.email_financeiro,
+      email_NFE: clienteData.email_nfe,
+      endereco: `${clienteData.descricao_tipo_de_logradouro} ${clienteData.logradouro}, ${clienteData.numero}, ${clienteData.bairro}, ${clienteData.municipio}, ${clienteData.uf} - CEP: ${clienteData.cep}`,
+      nome_banco: clienteData.nome_banco,
+      numero_conta: clienteData.numero_conta,
+      agencia: clienteData.agencia,
+      qsa: clienteData.qsa.map(socio => ({
+        nome_socio: socio.nome_socio,
+        cpf_socio: socio.cnpj_cpf_do_socio
+    }))
     }
-    
-    
 
-
-    console.log('Dados Cadastrados:', table_cliente);
-
-    console.log('Table contato: ', table_contato);
-
-    console.log('Table responsaveis: ', table_responsavel);
-
-    console.log('Table socio: \n');
-    clienteData.qsa.forEach((socio, index) => {
-      console.log(`Sócio ${index + 1}:`);
-      console.log('Nome:', socio.nome_socio);
-      console.log('Documento:', socio.cnpj_cpf_do_socio);
-    });
+    try {
+      const response = await fetch('http://192.168.15.65:5000/cadastrar_cliente', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(clienteDataAPI),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Erro ao cadastrar cliente');
+      }
+  
+      console.log('Cliente cadastrado com sucesso');
+    } catch (error) {
+      console.error(error.message);
+    }
   };
 
   return (
@@ -327,7 +334,7 @@ const CadastroClienteScreen = () => {
 
           </View>
         )}
-         <Button title="Imprimir Dados Cadastrados" onPress={imprimirDadosCadastrados} />
+         <Button title="Cadastrar cliente" onPress={cadastrarCliente} />
       </View>
     </ScrollView>
   );
