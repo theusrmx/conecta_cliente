@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity,StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+
 
 const ListarClientesScreen = () => {
   const [clientes, setClientes] = useState([]);
+  const navigation = useNavigation();
 
   useEffect(() => {
     // Função para carregar os clientes da API
@@ -20,18 +23,24 @@ const ListarClientesScreen = () => {
     carregarClientes();
   }, []);
 
+  const verDetalhesCliente = (cliente) => {
+    navigation.navigate('DetalhesCliente', { cliente });
+  };
+
   // Função para renderizar cada item da lista de clientes como um card
   const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <Text style={styles.cardText}>
-        <Text style={styles.cardTextLabel}>Empresa: </Text>
-        <Text style={styles.cardTextContent}>{item.razao_social}</Text>
-      </Text>
-      <Text style={styles.cardText}>
-        <Text style={styles.cardTextLabel}>CNPJ: </Text>
-        <Text style={styles.cardTextContent}>{item.cnpj}</Text>
-      </Text>
-    </View>
+    <TouchableOpacity onPress={() => verDetalhesCliente(item)}>
+      <View style={styles.card}>
+        <Text style={styles.cardText}>
+          <Text style={styles.cardTextLabel}>Empresa: </Text>
+          <Text style={styles.cardTextContent}>{item.razao_social}</Text>
+        </Text>
+        <Text style={styles.cardText}>
+          <Text style={styles.cardTextLabel}>CNPJ: </Text>
+          <Text style={styles.cardTextContent}>{item.cnpj}</Text>
+        </Text>
+      </View>
+    </TouchableOpacity>
   );
 
   return (

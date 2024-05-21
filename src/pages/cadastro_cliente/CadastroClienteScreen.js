@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
+import { TextInputMask } from 'react-native-masked-text';
 import { RadioButton } from 'react-native-paper';
 import InputCadastro from '../../components/cadastro_cliente/InputCadastro';
-import { cadastrarCliente } from '../../bd/database'; 
+import CustomButton from '../../components/comum/CustomButton';
 
 const CadastroClienteScreen = () => {
   const [cnpj, setCnpj] = useState('');
@@ -22,10 +23,9 @@ const CadastroClienteScreen = () => {
   };
 
   const cadastrarCliente = async () => {
-    console.log(clienteDataAPI)
+    
 
-
-    clienteDataAPI = {
+    let clienteDataAPI = {
       razao_social: clienteData.razao_social,
       cnpj: clienteData.cnpj,
       nome_fantasia: clienteData.nome_fantasia,
@@ -48,8 +48,9 @@ const CadastroClienteScreen = () => {
       qsa: clienteData.qsa.map(socio => ({
         nome_socio: socio.nome_socio,
         cpf_socio: socio.cnpj_cpf_do_socio
-    }))
+      }))
     }
+    console.log(clienteDataAPI)
 
     try {
       const response = await fetch('http://192.168.15.65:5000/cadastrar_cliente', {
@@ -63,7 +64,12 @@ const CadastroClienteScreen = () => {
       if (!response.ok) {
         throw new Error('Erro ao cadastrar cliente');
       }
-  
+      setTimeout(() => {
+        setClienteData(null);
+        setCnpj('');
+        setTipoEmpresa('');
+        setPredioProprio('');
+      }, 3000);
       console.log('Cliente cadastrado com sucesso');
     } catch (error) {
       console.error(error.message);
@@ -74,13 +80,14 @@ const CadastroClienteScreen = () => {
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
         <Text style={styles.heading}>Cadastro de Cliente</Text>
-        <TextInput
+        <TextInputMask
           style={styles.input}
           placeholder="CNPJ"
           value={cnpj}
           onChangeText={setCnpj}
+          type={'cnpj'}
         />
-        <Button title="Consultar CNPJ" onPress={consultarCNPJ} />
+        <CustomButton title="Consultar CNPJ" onPress={consultarCNPJ} />
         
         {clienteData && (
           <View style={styles.clienteDataContainer}>
@@ -332,9 +339,10 @@ const CadastroClienteScreen = () => {
               onChangeText={value => setClienteData({...clienteData, agencia: value})}
             />
 
+          
+          <CustomButton title="Cadastrar cliente" onPress={cadastrarCliente} />
           </View>
-        )}
-         <Button title="Cadastrar cliente" onPress={cadastrarCliente} />
+        )} 
       </View>
     </ScrollView>
   );
